@@ -1,22 +1,36 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
-import  {useEffect} from 'react';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, Animated } from 'react-native';
 
-const SplashScreen = ({navigation}) => {
-    useEffect(()=>{
-        const timer = setTimeout(() =>{
-            navigation.replace('SignUp');
+const SplashScreen = ({ navigation }) => {
+  const rotation = useRef(new Animated.Value(0)).current;
 
-        }, 4000);
-        return () => clearTimeout(timer);
+  useEffect(() => {
+    // Start the rotation animation
+    Animated.timing(rotation, {
+      toValue: 1, // Rotate one full circle
+      duration: 6000, // Duration of the animation (4 seconds)
+      useNativeDriver: true, // Use native driver for better performance
+    }).start(() => {
+      // Navigate to the SignUp screen after the animation completes
+      navigation.replace('SignUp');
+    });
+  }, [navigation, rotation]);
 
-        
-    }, [navigation]);
+  const rotateInterpolation = rotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'], // Rotate from 0 to 360 degrees
+  });
+
   return (
     <View style={styles.container}>
-      <View style={styles.circle}>
+      <Animated.View
+        style={[
+          styles.ellipse,
+          { transform: [{ rotate: rotateInterpolation }] },
+        ]}
+      >
         <Text style={styles.text}>MTN</Text>
-      </View>
+      </Animated.View>
     </View>
   );
 };
@@ -30,20 +44,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  circle: {
-    width: 120, // Circle diameter
-    height: 66, // Circle diameter
-    borderRadius: 100, // Half of the diameter for a perfect circle   
-    borderWidth: 3, 
-    borderColor: '#000', // Border color
-    justifyContent: 'center', // Center the content vertically
-    alignItems: 'center', // Center the content horizontally
-
+  ellipse: {
+    width: 120,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 3,
+    borderColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
     
   },
   text: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000', // Text color
+    color: '#000',
   },
 });
